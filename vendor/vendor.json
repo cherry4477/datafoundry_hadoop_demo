@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "ERfapGBlw0nw6pc7ZpHLI3QE0Uk=",
+			"path": "github.com/xmwilldo/gowfs",
+			"revision": "9d599f9e7880820ea87e304d5a96336d760a08f5",
+			"revisionTime": "2016-05-24T08:14:39Z"
+		}
+	],
+	"rootPath": "github.com/asiainfoLDP/datafoundry_hadoop_dome"
+}
