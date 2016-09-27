@@ -80,7 +80,7 @@ func initCookie() error {
 	in := bytes.NewBuffer(nil)
 	cmd := exec.Command("sh")
 	cmd.Stdin = in
-	in.WriteString("curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt http://hadoop-1.jcloud.local:50070/webhdfs/v1/"+BASEDIR+"?op=liststatus\n")
+	in.WriteString("curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt http://hadoop-1.jcloud.local:50070/webhdfs/v1"+BASEDIR+"?op=liststatus\n")
 	in.WriteString("exit\n")
 	if err := cmd.Run(); err != nil {
 		fmt.Println(err)

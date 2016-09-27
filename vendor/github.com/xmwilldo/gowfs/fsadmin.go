@@ -218,6 +218,8 @@ func getCookie() (string, error) {
 	str2 := strings.Split(str, "hadoop.auth")
 	cookieStr := "hadoop.auth=" + strings.TrimSpace(str2[1])
 
+	fmt.Println("cookie:", cookieStr)
+
 	return cookieStr, err
 }
 
