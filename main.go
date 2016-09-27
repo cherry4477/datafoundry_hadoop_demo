@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"os/exec"
 	"flag"
+	"strings"
 )
 
 var (
@@ -22,6 +23,8 @@ func init() {
 	HDFSUSER = os.Getenv("BSI_HDFS_HDFSDEMO_USERNAME")
 	BASEDIR = os.Getenv("BSI_HDFS_HDFSDEMO_NAME")
 	fmt.Printf("HDFSHOST: %s\nHDFSPORT: %s\nHDFSUSER: %s\nBASEDIR: %s\n", HDFSHOST, HDFSPORT, HDFSUSER, BASEDIR)
+
+	HDFSUSER = changeUsername(HDFSUSER)
 }
 
 func main() {
@@ -73,6 +76,7 @@ func initCookie() error {
 	if isExist {
 		err := os.Remove("/tmp/cookiejar.txt")
 		if err != nil {
+			fmt.Println("Remove cookie err:", err)
 			return err
 		}
 	}
@@ -80,10 +84,14 @@ func initCookie() error {
 	in := bytes.NewBuffer(nil)
 	cmd := exec.Command("sh")
 	cmd.Stdin = in
+	//execstr := "curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt http://hadoop-1.jcloud.local:50070/webhdfs/v1"+BASEDIR+"?op=liststatus\n"
 	in.WriteString("curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt http://hadoop-1.jcloud.local:50070/webhdfs/v1"+BASEDIR+"?op=liststatus\n")
+	//in.WriteString("curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt http://hadoop-1.jcloud.local:50070/webhdfs/v1?op=liststatus\n")
 	in.WriteString("exit\n")
+
+	//fmt.Println("execstr:", execstr)
 	if err := cmd.Run(); err != nil {
-		fmt.Println(err)
+		fmt.Println("cmd run err:", err)
 		return err
 	}
 	return nil
@@ -114,4 +122,8 @@ func createDirectory(fs *hdfs.FileSystem, name string, fileMode os.FileMode) (bo
 	}
 
 	return isCreated, nil
+}
+
+func changeUsername(username string) string {
+	return strings.Split(username, "@")[0]
 }
