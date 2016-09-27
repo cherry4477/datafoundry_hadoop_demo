@@ -6,5 +6,7 @@ COPY main.go /hadoop_demo/
 COPY vendor/github /go/src/
 
 RUN go build
+RUN "36.110.131.65 hadoop-1.jcloud.local" >> /etc/hosts
+RUN "36.110.132.55 hadoop-2.jcloud.local" >> /etc/hosts
 
 CMD ["tail","-f","/dev/null"]
