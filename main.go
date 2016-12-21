@@ -12,7 +12,7 @@ import (
 
 var (
 	HDFSHOST string
-	HDFSPORT string = ":50070"
+	HDFSPORT string
 	HDFSUSER string
 	BASEDIR string
 
@@ -20,6 +20,7 @@ var (
 
 func init() {
 	HDFSHOST = os.Getenv("BSI_HDFS_HDFSDEMO_HOST")
+	HDFSPORT = os.Getenv("BSI_HDFS_HDFSDEMO_PORT")
 	HDFSUSER = os.Getenv("BSI_HDFS_HDFSDEMO_USERNAME")
 	BASEDIR = os.Getenv("BSI_HDFS_HDFSDEMO_NAME")
 	fmt.Printf("HDFSHOST: %s\nHDFSPORT: %s\nHDFSUSER: %s\nBASEDIR: %s\n", HDFSHOST, HDFSPORT, HDFSUSER, BASEDIR)
@@ -68,7 +69,6 @@ func main() {
 
 		fmt.Println("make dir: ", isCreated)
 	}
-
 }
 
 func initCookie() error {
@@ -104,7 +104,7 @@ func isExistfile(filename string) bool {
 
 func newHdfsConfig() *hdfs.Configuration {
 	config := hdfs.NewConfiguration()
-	config.Addr = HDFSHOST+HDFSPORT
+	config.Addr = HDFSHOST+":"+HDFSPORT
 	config.User = HDFSUSER
 	config.BasePath = BASEDIR
 	config.MaxIdleConnsPerHost = 64
