@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"flag"
 	"strings"
+	//"io/ioutil"
 )
 
 var (
@@ -30,8 +31,9 @@ func init() {
 
 func main() {
 
-	createdir := flag.String("mkdir", "default", "create dir path.")
+	createdir := flag.String("mkdir", "", "create dir path.")
 	lsdir := flag.String("ls", "", "list the dir.")
+	load := flag.String("load", "", "load file.")
 	flag.Parse()
 
 	err := initCookie()
@@ -48,6 +50,14 @@ func main() {
 		return
 	}
 
+	//
+	//
+	//path := hdfs.Path{}
+	//path.Name = "/abc"
+	//ab, _ := fs.GetFileStatus(path)
+	//fmt.Println(ab.PathSuffix, ab.Length)
+	//return
+
 	if *lsdir != "" {
 		path := hdfs.Path{}
 		path.Name = "/"
@@ -60,7 +70,7 @@ func main() {
 		for _, file := range files {
 			fmt.Println(file.PathSuffix)
 		}
-	} else {
+	} else if *createdir != "" {
 		isCreated, err := createDirectory(fs, *createdir, 0700)
 		if err != nil {
 			fmt.Println("createDirectory err:", err)
@@ -68,6 +78,46 @@ func main() {
 		}
 
 		fmt.Println("make dir: ", isCreated)
+	} else if *load != "" {
+		in := bytes.NewBuffer(nil)
+		cmd := exec.Command("sh")
+		cmd.Stdin = in
+
+		//fmt.Println(*load)
+		abc := strings.Split(*load, "/")
+		createFile := abc[len(abc)-1]
+		//fmt.Println(createFile)
+
+		_, err := in.WriteString("curl -o /tmp/"+createFile+" "+*load+"\n")
+		if err != nil {
+			fmt.Println(err)
+		}
+		in.WriteString("exit\n")
+
+		if err := cmd.Run(); err != nil {
+			fmt.Println("cmd run err:", err)
+			return
+		}
+
+		data, err := os.Open("/tmp/"+createFile)
+		//data,err := ioutil.ReadFile("/home/wm/Desktop/test.tar.gz")
+		//buffer := bytes.NewBuffer(data)
+
+		ok, err := fs.Create(
+			data,
+			hdfs.Path{Name:"/"+createFile},
+			false,
+			0,
+			0,
+			0700,
+			0,
+		)
+		if err != nil {
+			fmt.Println("Create file err:", err)
+			return
+		}
+		fmt.Println(ok)
+
 	}
 }
 

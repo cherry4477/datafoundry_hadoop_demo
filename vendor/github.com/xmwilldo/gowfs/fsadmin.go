@@ -47,7 +47,7 @@ func (fs *FileSystem) Delete(path Path, recursive bool) (bool, error) {
 	}
 
 	req, _ := http.NewRequest("DELETE", u.String(), nil)
-	cookieStr, err := getCookie()
+	cookieStr, err := GetCookie()
 	if err != nil {
 		fmt.Println("cookie err")
 		return false, err
@@ -190,7 +190,7 @@ func (fs *FileSystem) MkDirs(p Path, fm os.FileMode) (bool, error) {
 	}
 
 	req, _ := http.NewRequest("PUT", u.String(), nil)
-	cookieStr, err := getCookie()
+	cookieStr, err := GetCookie()
 	if err != nil {
 		fmt.Println("cookie err")
 		return false, err
@@ -204,7 +204,7 @@ func (fs *FileSystem) MkDirs(p Path, fm os.FileMode) (bool, error) {
 	return hdfsData.Boolean, nil
 }
 
-func getCookie() (string, error) {
+func GetCookie() (string, error) {
 	fi, err := os.Open("/tmp/cookiejar.txt")
 	if err != nil {
 		return "", err
@@ -218,7 +218,7 @@ func getCookie() (string, error) {
 	str2 := strings.Split(str, "hadoop.auth")
 	cookieStr := "hadoop.auth=" + strings.TrimSpace(str2[1])
 
-	fmt.Println("cookie:", cookieStr)
+	//fmt.Println("cookie:", cookieStr)
 
 	return cookieStr, err
 }
@@ -265,7 +265,7 @@ func (fs *FileSystem) GetFileStatus(p Path) (FileStatus, error) {
 	}
 
 	req, _ := http.NewRequest("GET", u.String(), nil)
-	cookieStr, err := getCookie()
+	cookieStr, err := GetCookie()
 	if err != nil {
 		fmt.Println("cookie err")
 		return FileStatus{}, err
@@ -290,7 +290,7 @@ func (fs *FileSystem) ListStatus(p Path) ([]FileStatus, error) {
 	}
 
 	req, _ := http.NewRequest("GET", u.String(), nil)
-	cookieStr, err := getCookie()
+	cookieStr, err := GetCookie()
 	if err != nil {
 		fmt.Println("cookie err")
 		return nil, err
@@ -314,7 +314,7 @@ func (fs *FileSystem) GetContentSummary(p Path) (ContentSummary, error) {
 	}
 
 	req, _ := http.NewRequest("GET", u.String(), nil)
-	cookieStr, err := getCookie()
+	cookieStr, err := GetCookie()
 	if err != nil {
 		fmt.Println("cookie err")
 		return ContentSummary{}, err
@@ -342,6 +342,12 @@ func (fs *FileSystem) GetFileChecksum(p Path) (FileChecksum, error) {
 	}
 
 	req, _ := http.NewRequest("GET", u.String(), nil)
+	cookieStr, err := GetCookie()
+	if err != nil {
+		fmt.Println("cookie err")
+		return FileChecksum{}, err
+	}
+	req.Header.Set("Cookie", cookieStr)
 	hdfsData, err := requestHdfsData(fs.client, *req)
 	if err != nil {
 		return FileChecksum{}, err

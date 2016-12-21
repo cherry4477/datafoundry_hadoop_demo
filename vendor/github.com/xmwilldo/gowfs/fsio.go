@@ -56,6 +56,12 @@ func (fs *FileSystem) Create(
 	// take over default transport to avoid redirect
 	tr := &http.Transport{}
 	req, _ := http.NewRequest("PUT", u.String(), nil)
+	cookieStr, err := GetCookie()
+	if err != nil {
+		fmt.Println("cookie err")
+		return false, err
+	}
+	req.Header.Set("Cookie", cookieStr)
 	rsp, err := tr.RoundTrip(req)
 	if err != nil {
 		return false, err
