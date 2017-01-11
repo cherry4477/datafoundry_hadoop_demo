@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"flag"
 	"fmt"
 	hdfs "github.com/xmwilldo/gowfs"
 	"os"
-	"bytes"
 	"os/exec"
-	"flag"
 	"strings"
 	//"io/ioutil"
 )
@@ -15,16 +15,17 @@ var (
 	HDFSHOST string
 	HDFSPORT string
 	HDFSUSER string
-	BASEDIR string
-
+	BASEDIR  string
+	HDFSURI  string
 )
 
 func init() {
+	HDFSURI = os.Getenv("BSI_HDFS_HDFSDEMO_URI")
 	HDFSHOST = os.Getenv("BSI_HDFS_HDFSDEMO_HOST")
 	HDFSPORT = os.Getenv("BSI_HDFS_HDFSDEMO_PORT")
 	HDFSUSER = os.Getenv("BSI_HDFS_HDFSDEMO_USERNAME")
 	BASEDIR = os.Getenv("BSI_HDFS_HDFSDEMO_NAME")
-	fmt.Printf("HDFSHOST: %s\nHDFSPORT: %s\nHDFSUSER: %s\nBASEDIR: %s\n", HDFSHOST, HDFSPORT, HDFSUSER, BASEDIR)
+	fmt.Printf("HDFSURI: %s\nHDFSHOST: %s\nHDFSPORT: %s\nHDFSUSER: %s\nBASEDIR: %s\n", HDFSURI, HDFSHOST, HDFSPORT, HDFSUSER, BASEDIR)
 
 	HDFSUSER = changeUsername(HDFSUSER)
 }
@@ -88,7 +89,7 @@ func main() {
 		createFile := abc[len(abc)-1]
 		//fmt.Println(createFile)
 
-		_, err := in.WriteString("curl -o /tmp/"+createFile+" "+*load+"\n")
+		_, err := in.WriteString("curl -o /tmp/" + createFile + " " + *load + "\n")
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -99,13 +100,13 @@ func main() {
 			return
 		}
 
-		data, err := os.Open("/tmp/"+createFile)
+		data, err := os.Open("/tmp/" + createFile)
 		//data,err := ioutil.ReadFile("/home/wm/Desktop/test.tar.gz")
 		//buffer := bytes.NewBuffer(data)
 
 		ok, err := fs.Create(
 			data,
-			hdfs.Path{Name:"/"+createFile},
+			hdfs.Path{Name: "/" + createFile},
 			false,
 			0,
 			0,
@@ -135,7 +136,7 @@ func initCookie() error {
 	cmd := exec.Command("sh")
 	cmd.Stdin = in
 	//execstr := "curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt http://hadoop-1.jcloud.local:50070/webhdfs/v1"+BASEDIR+"?op=liststatus\n"
-	in.WriteString("curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt http://hadoop-1.jcloud.local:50070/webhdfs/v1"+BASEDIR+"?op=liststatus\n")
+	in.WriteString("curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt " + HDFSURI + "?op=liststatus\n")
 	//in.WriteString("curl -i -v --negotiate -u : -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt http://hadoop-1.jcloud.local:50070/webhdfs/v1?op=liststatus\n")
 	in.WriteString("exit\n")
 
@@ -154,7 +155,7 @@ func isExistfile(filename string) bool {
 
 func newHdfsConfig() *hdfs.Configuration {
 	config := hdfs.NewConfiguration()
-	config.Addr = HDFSHOST+":"+HDFSPORT
+	config.Addr = HDFSHOST + ":" + HDFSPORT
 	config.User = HDFSUSER
 	config.BasePath = BASEDIR
 	config.MaxIdleConnsPerHost = 64
